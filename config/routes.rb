@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   # Custom Devise routes for API
-  devise_for :users, skip: [:all]
+  devise_for :users, skip: [ :all ]
 
   # API routes
   namespace :api do
@@ -22,14 +22,14 @@ Rails.application.routes.draw do
       end
 
       # Contractor resources
-      resources :contractors, only: [:index, :show]
+      resources :contractors, only: [ :index, :show ]
 
       # Supplier resources
-      resources :suppliers, only: [:index, :show]
+      resources :suppliers, only: [ :index, :show ]
     end
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  get 'up' => 'rails/health#show', as: :rails_health_check
 end

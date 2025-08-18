@@ -1,6 +1,6 @@
 class Api::V1::ProjectsController < Api::V1::BaseController
-  before_action :require_contractor, except: [:show, :index]
-  before_action :set_project, only: [:show, :update, :destroy]
+  before_action :require_contractor, except: [ :show, :index ]
+  before_action :set_project, only: [ :show, :update, :destroy ]
 
   # GET /api/v1/projects
   def index

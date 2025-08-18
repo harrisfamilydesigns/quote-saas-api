@@ -1,8 +1,8 @@
 class Api::V1::MaterialRequestsController < Api::V1::BaseController
-  before_action :set_project, only: [:index, :create]
-  before_action :set_material_request, only: [:show, :update, :destroy]
-  before_action :require_contractor, except: [:show, :index]
-  before_action :authorize_access, only: [:show, :index]
+  before_action :set_project, only: [ :index, :create ]
+  before_action :set_material_request, only: [ :show, :update, :destroy ]
+  before_action :require_contractor, except: [ :show, :index ]
+  before_action :authorize_access, only: [ :show, :index ]
 
   # GET /api/v1/projects/:project_id/material_requests
   def index
@@ -95,7 +95,7 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
       project = @project || @material_request&.project
       if project&.contractor_id != current_user.contractor_id
         render json: { error: 'Unauthorized' }, status: :unauthorized
-        return
+        nil
       end
     elsif current_user.supplier_user?
       # Suppliers can access material requests they're invited to or those that are open to all
@@ -120,7 +120,7 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
 
       unless is_invited
         render json: { error: 'You are not invited to view this material request' }, status: :unauthorized
-        return
+        nil
       end
     end
   end

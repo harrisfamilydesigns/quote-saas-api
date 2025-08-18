@@ -1,6 +1,6 @@
 class Api::V1::QuotesController < Api::V1::BaseController
-  before_action :set_material_request, only: [:index, :create]
-  before_action :set_quote, only: [:show, :update, :destroy]
+  before_action :set_material_request, only: [ :index, :create ]
+  before_action :set_quote, only: [ :show, :update, :destroy ]
   before_action :authorize_access
 
   # GET /api/v1/material_requests/:material_request_id/quotes
@@ -92,13 +92,13 @@ class Api::V1::QuotesController < Api::V1::BaseController
       material_request = @material_request || @quote&.material_request
       if material_request&.project&.contractor_id != current_user.contractor_id
         render json: { error: 'Unauthorized' }, status: :unauthorized
-        return
+        nil
       end
     elsif current_user.supplier_user?
       # Suppliers can access quotes they've created or material requests they've been invited to quote on
       if @quote && @quote.supplier_id != current_user.supplier_id
         render json: { error: 'Unauthorized' }, status: :unauthorized
-        return
+        nil
       end
     end
   end

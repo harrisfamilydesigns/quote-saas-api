@@ -1,5 +1,5 @@
-class Api::V1::AuthController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:register, :login], raise: false
+class Api::V1::AuthController < Api::V1::BaseController
+  skip_before_action :authenticate_user!, only: [ :register, :login ], raise: false
 
   # POST /api/v1/auth/register
   def register
@@ -7,10 +7,10 @@ class Api::V1::AuthController < ApplicationController
 
     ActiveRecord::Base.transaction do
       # Create associated entity based on role
-      if user.role == 'contractor' && !user.contractor_id
+      if user.role == User::ROLE_CONTRACTOR && !user.contractor_id
         contractor = Contractor.create(name: "Contractor #{user.email}", contact_email: user.email)
         user.contractor = contractor
-      elsif user.role == 'supplier' && !user.supplier_id
+      elsif user.role == User::ROLE_SUPPLIER && !user.supplier_id
         supplier = Supplier.create(name: "Supplier #{user.email}", contact_email: user.email)
         user.supplier = supplier
       end
@@ -34,7 +34,7 @@ class Api::V1::AuthController < ApplicationController
       end
     end
   rescue => e
-    render json: { errors: [e.message] }, status: :unprocessable_entity
+    render json: { errors: [ e.message ] }, status: :unprocessable_entity
   end
 
   # POST /api/v1/auth/login
@@ -69,16 +69,31 @@ class Api::V1::AuthController < ApplicationController
 
   # GET /api/v1/auth/me
   def me
+    # Log authentication information
+    Rails.logger.debug 'AUTH /me REQUEST'
+    Rails.logger.debug "Headers: #{request.headers.to_h.select { |k, _| k.start_with?('HTTP_') }}"
+    Rails.logger.debug "Authorization: #{request.headers['Authorization']}"
+    Rails.logger.debug "Warden: #{request.env['warden'].inspect}"
+    Rails.logger.debug "Current user: #{current_user.inspect}"
+
     if current_user.nil?
+      Rails.logger.debug 'AUTH FAILED: current_user is nil'
       render json: { error: 'Not authenticated' }, status: :unauthorized
       return
     end
 
     # Re-generate JWT token for the current session
     token = request.env['warden-jwt_auth.token']
+
+    Rails.logger.debug "ME ENDPOINT TOKEN: #{token}"
+    Rails.logger.debug "WARDEN-JWT TOKEN: #{request.env['warden-jwt_auth.token']}"
+
     if token.nil? && request.headers['Authorization'].present?
       # Extract token from Authorization header if not available in request env
-      token = request.headers['Authorization'].split(' ').last
+      auth_header = request.headers['Authorization']
+      Rails.logger.debug "Auth header: #{auth_header}"
+      token = auth_header.split(' ').last if auth_header
+      Rails.logger.debug "Extracted token: #{token}"
     end
 
     current_user.instance_variable_set(:@auth_token, token)

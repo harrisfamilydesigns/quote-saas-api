@@ -6,8 +6,8 @@ class CreateMaterialRequestSuppliers < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     # Add a unique index to prevent duplicates
-    add_index :material_request_suppliers, [:material_request_id, :supplier_id], unique: true, name: 'index_material_req_suppliers_on_material_req_id_and_supplier_id'
+    add_index :material_request_suppliers, [ :material_request_id, :supplier_id ], unique: true, name: 'index_material_req_suppliers_on_material_req_id_and_supplier_id'
   end
 end

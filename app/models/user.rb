@@ -12,7 +12,11 @@ class User < ApplicationRecord
   validates :role, presence: true
 
   # Define valid roles
-  ROLES = %w[contractor supplier admin].freeze
+  ROLES = [
+    ROLE_CONTRACTOR = 'contractor',
+    ROLE_SUPPLIER = 'supplier',
+    ROLE_ADMIN = 'admin'
+  ].freeze
   validates :role, inclusion: { in: ROLES }
 
   def contractor_user?

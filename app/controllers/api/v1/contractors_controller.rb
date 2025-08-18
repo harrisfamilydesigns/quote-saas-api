@@ -4,7 +4,7 @@ class Api::V1::ContractorsController < Api::V1::BaseController
     contractors = Contractor.all
     render json: ContractorSerializer.new(contractors).serialize(as_array: true)
   end
-  
+
   # GET /api/v1/contractors/:id
   def show
     contractor = Contractor.find(params[:id])

@@ -5,16 +5,16 @@ FactoryBot.define do
     status { 'pending' }
     association :material_request
     association :supplier
-    
+
     trait :accepted do
       status { 'accepted' }
     end
-    
+
     trait :rejected do
       status { 'rejected' }
     end
-    
-    factory :accepted_quote, traits: [:accepted]
-    factory :rejected_quote, traits: [:rejected]
+
+    factory :accepted_quote, traits: [ :accepted ]
+    factory :rejected_quote, traits: [ :rejected ]
   end
 end
