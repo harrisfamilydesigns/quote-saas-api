@@ -112,19 +112,21 @@ class Api::V1::AuthController < Api::V1::BaseController
   private
 
   def user_params
-    # Only permit essential attributes for user creation
-    # Role is restricted to valid non-admin values
-    permitted_params = params.require(:user).permit(:email, :password, :role)
-
+    # First, get basic params without role
+    params_without_role = params.require(:user).permit(:email, :password)
+    
+    # Handle role separately with validation
+    role = params[:user][:role]
+    
+    # Set safe default role
+    safe_role = User::ROLE_CONTRACTOR
+    
     # Validate role if present
-    if permitted_params[:role].present?
-      # Prevent admin role assignment
-      if permitted_params[:role] == User::ROLE_ADMIN || !User::ROLES.include?(permitted_params[:role])
-        # Default to contractor role if invalid or admin attempt
-        permitted_params[:role] = User::ROLE_CONTRACTOR
-      end
+    if role.present? && User::ROLES.include?(role) && role != User::ROLE_ADMIN
+      safe_role = role
     end
-
-    permitted_params
+    
+    # Merge params
+    params_without_role.merge(role: safe_role)
   end
 end
