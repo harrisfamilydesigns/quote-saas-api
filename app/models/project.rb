@@ -12,6 +12,10 @@ class Project < ApplicationRecord
   # Set default status to draft
   after_initialize :set_default_status, if: :new_record?
 
+  scope :with_material_request_supplier_invites, ->(supplier_id) {
+    joins(:material_requests).merge(MaterialRequest.with_supplier_invites(supplier_id))
+  }
+
   private
 
   def set_default_status

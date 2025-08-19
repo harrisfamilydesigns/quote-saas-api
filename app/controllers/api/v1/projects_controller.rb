@@ -8,9 +8,7 @@ class Api::V1::ProjectsController < Api::V1::BaseController
       projects = current_user.contractor.projects
     elsif current_user.supplier_user?
       # Suppliers see projects with material requests they've quoted on
-      projects = Project.joins(material_requests: :quotes)
-                       .where(material_requests: { quotes: { supplier_id: current_user.supplier_id } })
-                       .distinct
+      projects = Project.with_material_request_supplier_invites(current_user.supplier_id)
     else
       render json: { error: 'Unauthorized' }, status: :unauthorized
       return
@@ -41,7 +39,7 @@ class Api::V1::ProjectsController < Api::V1::BaseController
     if project.save
       render json: ProjectSerializer.new(project).serialize, status: :created
     else
-      render json: { errors: project.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: project.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -50,7 +48,7 @@ class Api::V1::ProjectsController < Api::V1::BaseController
     if @project.update(project_params)
       render json: ProjectSerializer.new(@project).serialize
     else
-      render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @project.errors.full_messages }, status: :unprocessable_content
     end
   end
 

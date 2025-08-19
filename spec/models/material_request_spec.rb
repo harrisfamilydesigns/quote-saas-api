@@ -28,4 +28,21 @@ RSpec.describe MaterialRequest, type: :model do
       expect(material_request.invited_suppliers).to match_array(suppliers)
     end
   end
+
+  describe 'scopes' do
+    let(:supplier) { create(:supplier) }
+    let!(:material_request) { create(:material_request) }
+    let!(:material_request_supplier) { create(:material_request_supplier, material_request: material_request, supplier: supplier) }
+
+    it 'returns material requests with supplier invites' do
+      requests = MaterialRequest.with_supplier_invites(supplier.id)
+      expect(requests).to include(material_request)
+    end
+
+    it 'does not return material requests without supplier invites' do
+      other_material_request = create(:material_request)
+      requests = MaterialRequest.with_supplier_invites(supplier.id)
+      expect(requests).not_to include(other_material_request)
+    end
+  end
 end

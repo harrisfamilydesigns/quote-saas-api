@@ -17,7 +17,7 @@ RSpec.describe "Api::V1::Quotes", type: :request do
 
         expect(response).to have_http_status(:ok)
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response.length).to eq(3)
+        expect(parsed_response.dig('quotes').length).to eq(3)
       end
     end
 

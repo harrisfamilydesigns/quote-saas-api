@@ -6,8 +6,18 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
 
   # GET /api/v1/projects/:project_id/material_requests
   def index
-    material_requests = @project.material_requests
-    render json: MaterialRequestSerializer.new(material_requests).serialize
+    if current_user.supplier_user?
+      material_requests = @project.material_requests.joins(:material_request_suppliers)
+        .where(material_request_suppliers: { supplier_id: current_user.supplier_id })
+    else
+      # Contractors can see all material requests for their project
+      material_requests = @project.material_requests
+    end
+
+    # puts "Material requests for project #{@project.id}: count: #{material_requests.count}, #{material_requests.inspect}"
+    response = MaterialRequestSerializer.new(material_requests).serialize
+    # puts "Serialized response: #{response.inspect}"
+    render json: response, status: :ok
   end
 
   # GET /api/v1/material_requests/:id
@@ -30,7 +40,7 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
 
       render json: MaterialRequestSerializer.new(material_request).serialize, status: :created
     else
-      render json: { errors: material_request.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: material_request.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -39,7 +49,7 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
     if @material_request.update(material_request_params)
       render json: MaterialRequestSerializer.new(@material_request).serialize
     else
-      render json: { errors: @material_request.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @material_request.errors.full_messages }, status: :unprocessable_content
     end
   end
 

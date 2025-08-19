@@ -7,10 +7,10 @@ class Api::V1::AuthController < Api::V1::BaseController
 
     ActiveRecord::Base.transaction do
       # Create associated entity based on role
-      if user.role == User::ROLE_CONTRACTOR && !user.contractor_id
+      if user.role == User::ROLE_CONTRACTOR
         contractor = Contractor.create(name: "Contractor #{user.email}", contact_email: user.email)
         user.contractor = contractor
-      elsif user.role == User::ROLE_SUPPLIER && !user.supplier_id
+      elsif user.role == User::ROLE_SUPPLIER
         supplier = Supplier.create(name: "Supplier #{user.email}", contact_email: user.email)
         user.supplier = supplier
       end
@@ -29,12 +29,18 @@ class Api::V1::AuthController < Api::V1::BaseController
         render json: response, status: :created
         return # return here to prevent further execution
       else
+        # Store errors before raising rollback
+        @user_errors = user.errors.full_messages
         raise ActiveRecord::Rollback
-        render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
       end
     end
+
+    # Return errors after transaction if they exist
+    if @user_errors.present?
+      render json: { errors: @user_errors }, status: :unprocessable_content
+    end
   rescue => e
-    render json: { errors: [ e.message ] }, status: :unprocessable_entity
+    render json: { errors: [ e.message ] }, status: :unprocessable_content
   end
 
   # POST /api/v1/auth/login
@@ -57,14 +63,14 @@ class Api::V1::AuthController < Api::V1::BaseController
 
       render json: response, status: :ok
     else
-      render json: { error: 'Invalid email or password' }, status: :unauthorized
+      render json: { errors: [ 'Invalid email or password' ] }, status: :unauthorized
     end
   end
 
   # DELETE /api/v1/auth/logout
   def logout
     sign_out(current_user)
-    render json: { message: 'Logged out successfully' }, status: :ok
+    render json: { user: nil, message: 'Logged out successfully' }, status: :ok
   end
 
   # GET /api/v1/auth/me
@@ -78,7 +84,7 @@ class Api::V1::AuthController < Api::V1::BaseController
 
     if current_user.nil?
       Rails.logger.debug 'AUTH FAILED: current_user is nil'
-      render json: { error: 'Not authenticated' }, status: :unauthorized
+      render json: { errors: [ 'Not authenticated' ] }, status: :unauthorized
       return
     end
 
@@ -106,6 +112,19 @@ class Api::V1::AuthController < Api::V1::BaseController
   private
 
   def user_params
-    params.require(:user).permit(:email, :password, :role, :contractor_id, :supplier_id)
+    # Only permit essential attributes for user creation
+    # Role is restricted to valid non-admin values
+    permitted_params = params.require(:user).permit(:email, :password, :role)
+
+    # Validate role if present
+    if permitted_params[:role].present?
+      # Prevent admin role assignment
+      if permitted_params[:role] == User::ROLE_ADMIN || !User::ROLES.include?(permitted_params[:role])
+        # Default to contractor role if invalid or admin attempt
+        permitted_params[:role] = User::ROLE_CONTRACTOR
+      end
+    end
+
+    permitted_params
   end
 end

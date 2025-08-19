@@ -22,7 +22,7 @@ class Api::V1::QuotesController < Api::V1::BaseController
     if quote.save
       render json: QuoteSerializer.new(quote).serialize, status: :created
     else
-      render json: { errors: quote.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: quote.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -32,7 +32,7 @@ class Api::V1::QuotesController < Api::V1::BaseController
       if @quote.update(update_params)
         render json: QuoteSerializer.new(@quote).serialize
       else
-        render json: { errors: @quote.errors.full_messages }, status: :unprocessable_entity
+        render json: { errors: @quote.errors.full_messages }, status: :unprocessable_content
       end
     else
       render json: { error: 'You are not authorized to update this quote' }, status: :forbidden

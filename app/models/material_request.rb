@@ -10,6 +10,10 @@ class MaterialRequest < ApplicationRecord
   validates :quantity, presence: true, numericality: { greater_than: 0 }
   validates :unit, presence: true
 
+  scope :with_supplier_invites, ->(supplier_id) {
+    joins(:material_request_suppliers).where(material_request_suppliers: { supplier_id: supplier_id })
+  }
+
   # Define some common units
   COMMON_UNITS = %w[piece each ft sqft sheet yard ton lb kg].freeze
 end

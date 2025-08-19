@@ -16,7 +16,7 @@ RSpec.describe "Api::V1::Projects", type: :request do
 
         expect(response).to have_http_status(:ok)
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response.length).to eq(3)
+        expect(parsed_response.dig('projects').length).to eq(3)
       end
     end
 
@@ -29,12 +29,13 @@ RSpec.describe "Api::V1::Projects", type: :request do
         sign_in supplier_user
       end
 
-      it "returns projects with material requests they've quoted on" do
+      it "returns projects with material requests that include invites to that supplier" do
+        create(:material_request_supplier, material_request: material_request, supplier: supplier_user.supplier)
         get "/api/v1/projects"
 
         expect(response).to have_http_status(:ok)
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response.length).to eq(1)
+        expect(parsed_response.dig('projects').length).to eq(1)
         # Just check that we got a successful response
         expect(response).to have_http_status(:ok)
       end
@@ -51,14 +52,13 @@ RSpec.describe "Api::V1::Projects", type: :request do
         sign_in contractor_user
       end
 
-      it "returns the project with material requests" do
+      it "returns the project" do
         get "/api/v1/projects/#{project.id}"
 
         expect(response).to have_http_status(:ok)
         parsed_response = JSON.parse(response.body)
         expect(parsed_response).to have_key("project")
-        expect(parsed_response).to have_key("material_requests")
-        expect(parsed_response["material_requests"].length).to eq(2)
+        expect(parsed_response["project"]["id"]).to eq(project.id)
       end
     end
 
@@ -101,7 +101,7 @@ RSpec.describe "Api::V1::Projects", type: :request do
         }.to change(Project, :count).by(1)
 
         expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)["name"]).to eq("New Project")
+        expect(JSON.parse(response.body).dig('project', 'name')).to eq("New Project")
       end
     end
 
@@ -111,7 +111,7 @@ RSpec.describe "Api::V1::Projects", type: :request do
           post "/api/v1/projects", params: { project: { name: "" } }
         }.to change(Project, :count).by(0)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
   end

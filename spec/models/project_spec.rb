@@ -18,4 +18,18 @@ RSpec.describe Project, type: :model do
       expect(project.status).to eq('draft')
     end
   end
+
+  describe 'scopes' do
+    let(:supplier) { create(:supplier) }
+    let!(:project_with_invite) { create(:project) }
+    let!(:material_request) { create(:material_request, project: project_with_invite) }
+    let!(:material_request_supplier) { create(:material_request_supplier, material_request: material_request, supplier: supplier) }
+    let!(:project_without_invite) { create(:project) }
+
+    it 'returns projects with material request supplier invites' do
+      projects = Project.with_material_request_supplier_invites(supplier.id)
+      expect(projects).to include(project_with_invite)
+      expect(projects).not_to include(project_without_invite)
+    end
+  end
 end

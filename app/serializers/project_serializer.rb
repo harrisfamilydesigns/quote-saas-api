@@ -10,5 +10,7 @@ class ProjectSerializer
     ContractorSerializer.new(project.contractor).serialize
   end
 
-  # We'll manually include material_requests in the controller when needed
+  attribute :material_request_count do |project|
+    MaterialRequestSerializer.new(project.material_requests).serialize
+  end
 end
