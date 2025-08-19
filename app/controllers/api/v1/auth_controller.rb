@@ -114,18 +114,18 @@ class Api::V1::AuthController < Api::V1::BaseController
   def user_params
     # First, get basic params without role
     params_without_role = params.require(:user).permit(:email, :password)
-    
+
     # Handle role separately with validation
     role = params[:user][:role]
-    
+
     # Set safe default role
     safe_role = User::ROLE_CONTRACTOR
-    
+
     # Validate role if present
     if role.present? && User::ROLES.include?(role) && role != User::ROLE_ADMIN
       safe_role = role
     end
-    
+
     # Merge params
     params_without_role.merge(role: safe_role)
   end
