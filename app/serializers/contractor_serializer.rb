@@ -1,6 +1,4 @@
-class ContractorSerializer
-  include Alba::Resource
-
+class ContractorSerializer < BaseSerializer
   root_key :contractor
   root_key_for_collection :contractors
 

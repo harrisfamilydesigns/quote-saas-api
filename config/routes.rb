@@ -18,6 +18,7 @@ Rails.application.routes.draw do
           # Route for managing supplier invitations
           post 'invite_suppliers', on: :member
           delete 'remove_supplier/:supplier_id', to: 'material_requests#remove_supplier', on: :member
+          get 'units', on: :collection
         end
       end
 

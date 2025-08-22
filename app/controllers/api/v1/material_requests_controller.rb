@@ -82,6 +82,10 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
     render json: MaterialRequestSerializer.new(@material_request).serialize
   end
 
+  def units
+    render json: { materialUnits: MaterialRequest::COMMON_UNITS }, status: :ok
+  end
+
   private
 
   def set_project

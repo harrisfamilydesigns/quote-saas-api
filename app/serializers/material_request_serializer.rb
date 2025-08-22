@@ -1,6 +1,4 @@
-class MaterialRequestSerializer
-  include Alba::Resource
-
+class MaterialRequestSerializer < BaseSerializer
   root_key :material_request
   root_key_for_collection :material_requests
 

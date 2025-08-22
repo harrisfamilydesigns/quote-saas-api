@@ -16,8 +16,8 @@ RSpec.describe "Api::V1::MaterialRequests", type: :request do
 
         expect(response).to have_http_status(:ok)
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response).to have_key("material_requests")
-        expect(parsed_response["material_requests"].length).to eq(3)
+        expect(parsed_response).to have_key("materialRequests")
+        expect(parsed_response["materialRequests"].length).to eq(3)
       end
     end
 
@@ -40,9 +40,9 @@ RSpec.describe "Api::V1::MaterialRequests", type: :request do
 
         expect(response).to have_http_status(:ok)
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response).to have_key("material_requests")
+        expect(parsed_response).to have_key("materialRequests")
         # Supplier only sees material requests they're invited to
-        expect(parsed_response["material_requests"].length).to eq(3)
+        expect(parsed_response["materialRequests"].length).to eq(3)
       end
 
       it "returns unauthorized for projects they aren't invited to" do
@@ -69,8 +69,8 @@ RSpec.describe "Api::V1::MaterialRequests", type: :request do
 
         expect(response).to have_http_status(:ok)
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response).to have_key("material_request")
-        expect(parsed_response["material_request"]["id"]).to eq(material_request.id)
+        expect(parsed_response).to have_key("materialRequest")
+        expect(parsed_response["materialRequest"]["id"]).to eq(material_request.id)
       end
     end
 
@@ -87,8 +87,8 @@ RSpec.describe "Api::V1::MaterialRequests", type: :request do
 
         expect(response).to have_http_status(:ok)
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response).to have_key("material_request")
-        expect(parsed_response["material_request"]["id"]).to eq(material_request.id)
+        expect(parsed_response).to have_key("materialRequest")
+        expect(parsed_response["materialRequest"]["id"]).to eq(material_request.id)
       end
     end
 
@@ -136,8 +136,8 @@ RSpec.describe "Api::V1::MaterialRequests", type: :request do
 
         expect(response).to have_http_status(:created)
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response).to have_key("material_request")
-        expect(parsed_response["material_request"]["description"]).to eq("Wood panels")
+        expect(parsed_response).to have_key("materialRequest")
+        expect(parsed_response["materialRequest"]["description"]).to eq("Wood panels")
       end
 
       it "creates a material request without suppliers" do
@@ -211,7 +211,7 @@ RSpec.describe "Api::V1::MaterialRequests", type: :request do
 
     context "with invalid parameters" do
       it "returns unprocessable entity" do
-        put "/api/v1/material_requests/#{material_request.id}", params: { material_request: { quantity: -1 } }
+        put "/api/v1/material_requests/#{material_request.id}", params: { material_request: { description: "" } }
 
         expect(response).to have_http_status(:unprocessable_content)
         parsed_response = JSON.parse(response.body)
@@ -285,7 +285,7 @@ RSpec.describe "Api::V1::MaterialRequests", type: :request do
 
       expect(response).to have_http_status(:ok)
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response).to have_key("material_request")
+      expect(parsed_response).to have_key("materialRequest")
     end
 
     it "doesn't duplicate invitations" do
@@ -332,7 +332,7 @@ RSpec.describe "Api::V1::MaterialRequests", type: :request do
 
       expect(response).to have_http_status(:ok)
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response).to have_key("material_request")
+      expect(parsed_response).to have_key("materialRequest")
     end
 
     context "as a supplier" do
@@ -347,6 +347,24 @@ RSpec.describe "Api::V1::MaterialRequests", type: :request do
 
         expect(response).to have_http_status(:forbidden)
       end
+    end
+  end
+
+  describe "GET /api/v1/projects/:project_id/material_requests/units" do
+    let(:contractor_user) { create(:contractor_user) }
+    let(:project) { create(:project, contractor: contractor_user.contractor) }
+
+    before do
+      sign_in contractor_user
+    end
+
+    it "returns all common units" do
+      get "/api/v1/projects/#{project.id}/material_requests/units"
+
+      expect(response).to have_http_status(:ok)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response).to have_key("materialUnits")
+      expect(parsed_response["materialUnits"]).to eq(MaterialRequest::COMMON_UNITS)
     end
   end
 end

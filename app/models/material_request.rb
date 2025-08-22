@@ -7,8 +7,6 @@ class MaterialRequest < ApplicationRecord
   has_many :invited_suppliers, through: :material_request_suppliers, source: :supplier
 
   validates :description, presence: true
-  validates :quantity, presence: true, numericality: { greater_than: 0 }
-  validates :unit, presence: true
 
   scope :with_supplier_invites, ->(supplier_id) {
     joins(:material_request_suppliers).where(material_request_suppliers: { supplier_id: supplier_id })

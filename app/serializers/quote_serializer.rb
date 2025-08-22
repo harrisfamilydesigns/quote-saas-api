@@ -1,4 +1,4 @@
-class QuoteSerializer
+class QuoteSerializer < BaseSerializer
   include Alba::Resource
 
   root_key :quote
@@ -11,14 +11,14 @@ class QuoteSerializer
   end
 
   attribute :project do |quote|
-    ProjectSerializer.new(quote.material_request.project).serialize
+    ProjectSerializer.new(quote.material_request.project).serializable_hash
   end
 
   attribute :material_request do |quote|
-    MaterialRequestSerializer.new(quote.material_request).serialize
+    MaterialRequestSerializer.new(quote.material_request).serializable_hash
   end
 
   attribute :supplier do |quote|
-    SupplierSerializer.new(quote.supplier).serialize
+    SupplierSerializer.new(quote.supplier).serializable_hash
   end
 end
