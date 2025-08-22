@@ -23,7 +23,7 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
   # GET /api/v1/material_requests/:id
   def show
     # Create serialized data
-    render json: MaterialRequestSerializer.new(@material_request).serialize
+    render json: MaterialRequestDetailSerializer.new(@material_request).serialize
   end
 
   # POST /api/v1/projects/:project_id/material_requests
@@ -38,7 +38,7 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
         end
       end
 
-      render json: MaterialRequestSerializer.new(material_request).serialize, status: :created
+      render json: MaterialRequestDetailSerializer.new(material_request).serialize, status: :created
     else
       render json: { errors: material_request.errors.full_messages }, status: :unprocessable_content
     end
@@ -47,7 +47,7 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
   # PUT /api/v1/material_requests/:id
   def update
     if @material_request.update(material_request_params)
-      render json: MaterialRequestSerializer.new(@material_request).serialize
+      render json: MaterialRequestDetailSerializer.new(@material_request).serialize
     else
       render json: { errors: @material_request.errors.full_messages }, status: :unprocessable_content
     end
@@ -69,7 +69,7 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
     end
 
     # Create response with suppliers
-    render json: MaterialRequestSerializer.new(@material_request).serialize
+    render json: MaterialRequestDetailSerializer.new(@material_request).serialize
   end
 
   # DELETE /api/v1/material_requests/:id/remove_supplier/:supplier_id
@@ -79,11 +79,11 @@ class Api::V1::MaterialRequestsController < Api::V1::BaseController
     @material_request.invited_suppliers.delete(supplier)
 
     # Create response with suppliers
-    render json: MaterialRequestSerializer.new(@material_request).serialize
+    render json: MaterialRequestDetailSerializer.new(@material_request).serialize
   end
 
   def units
-    render json: { materialUnits: MaterialRequest::COMMON_UNITS }, status: :ok
+    render json: MaterialRequest::COMMON_UNITS, status: :ok
   end
 
   private

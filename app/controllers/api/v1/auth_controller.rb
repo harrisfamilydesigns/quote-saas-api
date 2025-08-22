@@ -24,7 +24,7 @@ class Api::V1::AuthController < Api::V1::BaseController
         # Add token to user for serialization
         user.instance_variable_set(:@auth_token, token)
 
-        response = UserSerializer.new(user).serialize
+        response = AuthUserSerializer.new(user).serialize
 
         render json: response, status: :created
         return # return here to prevent further execution
@@ -59,7 +59,7 @@ class Api::V1::AuthController < Api::V1::BaseController
       # Add token to user for serialization
       user.instance_variable_set(:@auth_token, token)
 
-      response = UserSerializer.new(user).serialize
+      response = AuthUserSerializer.new(user).serialize
 
       render json: response, status: :ok
     else
@@ -104,7 +104,7 @@ class Api::V1::AuthController < Api::V1::BaseController
 
     current_user.instance_variable_set(:@auth_token, token)
 
-    response = UserSerializer.new(current_user).serialize
+    response = AuthUserSerializer.new(current_user).serialize
 
     render json: response, status: :ok
   end

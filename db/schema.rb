@@ -39,6 +39,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_15_011907) do
     t.index ["supplier_id"], name: "index_material_request_suppliers_on_supplier_id"
   end
 
+  # TODO: Add status, open, fulfilled, cancelled
   create_table "material_requests", force: :cascade do |t|
     t.bigint "project_id", null: false
     t.text "description"

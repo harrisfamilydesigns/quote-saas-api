@@ -11,7 +11,7 @@ class Api::V1::QuotesController < Api::V1::BaseController
 
   # GET /api/v1/quotes/:id
   def show
-    render json: QuoteSerializer.new(@quote).serialize
+    render json: QuoteDetailSerializer.new(@quote).serialize
   end
 
   # POST /api/v1/material_requests/:material_request_id/quotes

@@ -11,6 +11,9 @@ Rails.application.routes.draw do
       delete 'auth/logout', to: 'auth#logout'
       get 'auth/me', to: 'auth#me'
 
+      # This needs to be before the resources block to avoid conflicts on material_requests#show
+      get 'material_requests/units', to: 'material_requests#units'
+
       # Project resources
       resources :projects do
         resources :material_requests, shallow: true do
@@ -18,7 +21,6 @@ Rails.application.routes.draw do
           # Route for managing supplier invitations
           post 'invite_suppliers', on: :member
           delete 'remove_supplier/:supplier_id', to: 'material_requests#remove_supplier', on: :member
-          get 'units', on: :collection
         end
       end
 

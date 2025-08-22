@@ -5,10 +5,14 @@ class Api::V1::ProjectsController < Api::V1::BaseController
   # GET /api/v1/projects
   def index
     if current_user.contractor_user?
-      projects = current_user.contractor.projects
+      projects = current_user.contractor.projects.includes(
+        material_requests: :quotes
+      )
     elsif current_user.supplier_user?
       # Suppliers see projects with material requests they've quoted on
-      projects = Project.with_material_request_supplier_invites(current_user.supplier_id)
+      projects = Project.with_material_request_supplier_invites(current_user.supplier_id).includes(
+        material_requests: :quotes
+      )
     else
       render json: { error: 'Unauthorized' }, status: :unauthorized
       return
@@ -29,7 +33,9 @@ class Api::V1::ProjectsController < Api::V1::BaseController
       return
     end
 
-    render json: ProjectSerializer.new(@project).serialize
+    Rails.logger.info "$$$$ Showing project #{@project.id} for user #{current_user.id}"
+
+    render json: ProjectDetailSerializer.new(@project).serialize
   end
 
   # POST /api/v1/projects
